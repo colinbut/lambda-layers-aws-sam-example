@@ -1,9 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  lambda-layers-aws-sam-example
-
-  Sample SAM Template for lambda-layers-aws-sam-example
+  SAM Template for lambda-layers-aws-sam-example
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -11,18 +9,34 @@ Globals:
     Timeout: 3
 
 Resources:
+  ExampleSSMParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: "/param/text"
+      Description: "The parameter text used for the following Lambda Function"
+      Type: String
+      Value: "Hello, World"
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: hello_world/
       Handler: app.lambda_handler
       Runtime: python3.9
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter*
+            Resource: '*' 
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /hello
             Method: get
+      
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
